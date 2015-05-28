@@ -8,6 +8,10 @@
 #include <sys/time.h>
 #include <ncurses.h>
 
+#define COMMAND_TUX "tux"
+
+void parse_command(char * command);
+
 int main(int argc, char *argv[])
 {
     int host_port;
@@ -19,7 +23,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in host_address, user_address;
 
     fd_set read_set, test_set;
-char ch;
+
     char char_buffer;
     char user_input[1024];
     int cmd = 0;
@@ -105,22 +109,36 @@ char ch;
         {
             do
             {
-                n = read(host_read_sockfd, &char_buffer, 1);    
+                
+		n = read(host_read_sockfd, &char_buffer, 1);    
+		
+
                 if (n == 1)
                 {
                     write(1, &char_buffer, 1);
-                }
-		
-		if (cmd == 1)
-		   *cmd_buf++ = char_buffer; 
-		
-		if (char_buffer == '/')
-			cmd = 1;
-		if (char_buffer == ')');
-		{
-			printf("\n\nkomenda: %s\n", cmd_buf);
-            		cmd = 0;
+
+		  if (cmd == 1)
+		  {
+		  	if (char_buffer == ')'){
+				cmd = 0;
+				write(1, "ha ha, dostałem komendę do wykonania. ciekawe co powinienem z nią zrobić? :)", 76);
+				parse_command(cmd_buf);
+				*cmd_buf = '\0';
+				
+			}
+			else
+			{
+		  		strncat(cmd_buf, (const char *)&char_buffer, 1);  
+			}
+
 		}
+		    if ( char_buffer == '/')
+		    	{
+		    	write(1, "\nOtrzymalem '/'!", 16);
+			cmd = 1;
+			}
+		}
+		
 	    } while(n > 0);
         }
 
@@ -131,11 +149,24 @@ char ch;
                 n = read(0, user_input, 1);
                 if (n > 0)
                 {
-                    write(user_sockfd, user_input, 1);
+                    if (user_input[0] == '/')
+		    	printf("\nwyslano '/' \n\n");
+
+		    write(user_sockfd, user_input, 1);
                 }
             } while(n > 0);
         }
     }
 
     return 0;
+}
+
+void parse_command(char *buffer)
+{
+	char command_list[] = "tux";
+	int n = strcmp(buffer, command_list);
+	if (n == 0)
+		write(1, "\nHa! rozpoznałem komendę tux!\n", 31);
+	else
+		write(1, "\nPierdol się :P nie znam takiej komendy\n", 40);
 }
