@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
     int host_read_sockfd, user_write_sockfd;
     int connect_res;
     struct sockaddr_in host_address, user_address;
-
     fd_set read_set, test_set;
 
     char char_buffer;
@@ -74,6 +73,7 @@ int main(int argc, char *argv[])
     FD_SET(host_sockfd, &read_set);
     FD_SET(0, &read_set);
 
+
     do
     {
         connect_res = connect(user_sockfd, (struct sockaddr *) &user_address, sizeof(user_address));
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
     flags = fcntl(0, F_GETFL, 0);
     fcntl(0, F_SETFL, flags | O_NONBLOCK | O_SYNC);
-
+    
     flags = fcntl(1, F_GETFL, 0);
     fcntl(1, F_SETFL, flags | O_SYNC);
 
@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
         {
             do
             {
-                
 		n = read(host_read_sockfd, &char_buffer, 1);    
 		
 
@@ -163,10 +162,49 @@ int main(int argc, char *argv[])
 
 void parse_command(char *buffer)
 {
-	char command_list[] = "tux";
-	int n = strcmp(buffer, command_list);
-	if (n == 0)
+	const char cmd1[]= "tux";
+	const char cmd2[]= "dir ";
+	const char cmd3[]= "nowyplik ";
+	int which_cmd = 0;
+	char cmd_1[] = "mkdir ";
+	char cmd_2[] = "touch ";
+
+	write(1, "\n buffer = ", 11);
+	write(1, buffer, strlen(buffer));
+
+	if (strncmp(buffer, cmd2, 4) == 0)
+		which_cmd = 2;
+	else if (strncmp(buffer, cmd3, 9) == 0)
+		which_cmd = 3;
+	else if (strncmp(buffer, cmd1, 3) == 0)
+		which_cmd = 1;
+	
+
+	//int n = strncmp(buffer, cmd1, 3);
+	
+	if (which_cmd == 1)
 		write(1, "\nHa! rozpoznałem komendę tux!\n", 31);
+	else if (which_cmd == 2)
+		{
+		write(1, "\nZrob nowy katalog: ", 21);
+		buffer += 4;
+		write(1, buffer, strlen(buffer));
+		
+		strcat(cmd_1, buffer);
+		strcat(cmd_1, "/");
+		write(1, cmd_1, strlen(cmd_1));
+		system(cmd_1);
+		}
+	else if (which_cmd == 3)
+		{
+		write(1, "\nStworz nowy plik: ", 20);
+		buffer += 9;
+		write(1, buffer, strlen(buffer));
+		
+		strcat(cmd_2, buffer);
+		write(1, cmd_2, strlen(cmd_2));
+		system(cmd_2);
+		}
 	else
 		write(1, "\nPierdol się :P nie znam takiej komendy\n", 40);
 }
