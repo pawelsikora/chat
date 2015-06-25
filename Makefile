@@ -1,2 +1,2 @@
 all:
-	gcc -g -lncursesw -o chat chat.c
+	gcc -g -o chat chat.c
