@@ -6,7 +6,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/time.h>
-#include <ncurses.h>
 
 #define COMMAND_TUX "tux"
 
